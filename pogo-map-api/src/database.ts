@@ -1,6 +1,6 @@
 import * as sequelize from 'sequelize';
 
-const database: sequelize.Sequelize = new sequelize('postgres://account:account@localhost:5432/account');
+const database: sequelize.Sequelize = new sequelize('postgres://pogomap:postgres@localhost:5432/pogomapdb');
 
 database
     .authenticate()
