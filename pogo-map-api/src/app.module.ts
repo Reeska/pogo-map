@@ -2,15 +2,19 @@ import {Module} from '@nestjs/common';
 import {AppController} from './app.controller';
 import {GymController} from './gym/gym.controller';
 import {GymRepository} from "./gym/gym.repository";
+import {RaidController} from "./raid/raid.controller";
+import {RaidRepository} from "./raid/raid.repository";
 
 @Module({
     imports: [],
     controllers: [
         AppController,
-        GymController
+        GymController,
+        RaidController
     ],
     components: [
-        GymRepository
+        GymRepository,
+        RaidRepository
     ]
 })
 export class ApplicationModule {
