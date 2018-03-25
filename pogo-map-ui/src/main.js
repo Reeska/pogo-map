@@ -4,16 +4,21 @@ import Vue from 'vue'
 import App from './App'
 import VeeValidate from 'vee-validate';
 import VueCountdown from '@xkeshi/vue-countdown';
-
-// TODO importer et utiliser le router
+import {Map, TileLayer, Marker, Popup} from 'vue2-leaflet';
 
 Vue.config.productionTip = false
+
 Vue.use(VeeValidate);
+
 Vue.component('countdown', VueCountdown);
+Vue.component('v-map', Map);
+Vue.component('v-tilelayer', TileLayer);
+Vue.component('v-marker', Marker);
+Vue.component('v-popup', Popup);
 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
   template: '<App/>',
-  components: { App }
+  components: {App}
 })
