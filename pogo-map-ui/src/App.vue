@@ -20,112 +20,90 @@
             Pop : {{ toPrintedDate(marker.raid.hatchTime) }}<br/>
             Fin : {{ getEndDate(marker.raid.hatchTime) }}<br/>
             On lance à : {{ toPrintedDate(marker.raid.raidStartTime) }}<br/>
-            <a href='#popin1'>Modifier</a>
+            <a href='#' @click="showAddRaid(marker.raid)">Modifier</a>
           </div>
         </v-popup>
+        <v-tooltip :options="buildTooltipOptions()" class="countdown unhatched">
+          <countdown :time="2 * 24 * 60 * 60 * 1000">
+            <template slot-scope="props">{{ props.hours }}:{{ props.minutes }}:{{ props.seconds }}</template>
+          </countdown>
+        </v-tooltip>
       </v-marker>
     </v-map>
 
-    <div class="smart-popin" id="popin1">
-      <div class="sp-table">
-        <div class="sp-cell">
-          <div class="sp-body">
-            <h2>Ajouter un raid 5 &#9733; :</h2>
+    <manage-raid :raid="selectedRaid" @raidModified="raidModified()"></manage-raid>
 
-            <form @submit.prevent="saveRaid()">
-              <div class="form-group">
-                <label for="gymName">Nom de l'arène</label>
-                <input type="text" v-validate="'required'" list="gyms" class="form-control" v-model="selectedGymName"
-                       id="gymName" placeholder="Nom de l'arène">
-              </div>
-
-              <datalist id="gyms">
-                <option v-for="gym in gyms" :id="gym.id" :value="gym.name"></option>
-              </datalist>
-
-              <div class="form-group">
-                <label for="timeOfPop">Heure du pop</label>
-                <input type="text" v-validate="'required|regex:^[0-9]{2}:[0-9]{2}$'" name="timeOfPop"
-                       class="form-control" v-model="timeOfPop" id="timeOfPop" placeholder="HH:MM : ex 14:45">
-                <span v-show="errors.has('timeOfPop')" class="help is-danger">{{ errors.first('timeOfPop') }}</span>
-              </div>
-
-              <div class="form-group">
-                <label for="timeOfRaid">On lance à</label>
-                <input type="text" v-validate="'regex:^[0-9]{2}:[0-9]{2}$'" v-model="startTime" class="form-control"
-                       id="timeOfRaid" placeholder="HH:MM : ex 14:45">
-              </div>
-
-              <button type="submit" class="btn btn-primary">Enregistrer</button>
-            </form>
-
-            <a href="#" class="sp-close">×</a>
-          </div>
-
-          <a href="#" class="sp-back"></a>
-        </div>
-      </div>
-    </div>
-
-    <div style="height:50px; width:50px;z-index:5454357;position:absolute;right:10px;top:10px;">
-      <a href="#popin1"><img src="assets/add.png" style="height:50px;"/></a>
+    <div style="height:50px; width:50px;z-index:5454357;position:absolute;right:10px;top:10px;" @click="showAddRaid()">
+      <a href="#"><img src="assets/add.png" style="height:50px;"/></a>
     </div>
   </div>
 </template>
 
 <script>
-  import {getGyms, postRaid, getActiveRaids} from './services/gyms-services'
+  import {postRaid, getActiveRaids, findGymById} from './services/gyms-services'
+  import {toPrintedDate} from './services/date-service'
+  import ManageRaid from './components/manageRaid'
 
   export default {
-    props: ['uid'],
     data() {
       return {
-        gyms: '',
-        selectedGymName: '',
-        timeOfPop: '',
-        startTime: '',
+        gyms: [],
         tileLayers: [],
-        markers: []
+        markers: [],
+        selectedRaid: {}
       }
     },
+    components : { ManageRaid },
     methods: {
-      saveRaid() {
-        this.$validator.validateAll().then(res => {
-          if (res) {
-            var id = this.findGymIdByName(this.selectedGymName);
-            var timeOfPopDate = this.toDate(this.timeOfPop);
-            var startTimeDate = timeOfPopDate;
-            if (this.startTime) {
-              startTimeDate = this.toDate(this.startTime);
-            }
-            postRaid({gymId: id, hatchTime: timeOfPopDate.toISOString(), raidStartTime: startTimeDate.toISOString()});
-          }
-        });
+      toPrintedDate,
+      showAddRaid(raid) {
+        this.selectedRaid = raid;
+        this.$modal.show('raid');
       },
-      findGymIdByName(name) {
-        return this.gyms.filter(gym => gym.name === name).map(gym => gym.id).reduce((a, b) => b, {});
-      },
-      toDate(date) {
-        const [hour, minute] = date.split(':');
-        var today = new Date();
-        today.setHours(hour, minute);
-        return today;
+      buildTooltipOptions() {
+        return {
+          permanent: true,
+          opacity: 1,
+          offset: new L.Point(0, -50),
+          direction: 'top'
+        }
       },
       getEndDate(startDate) {
-        return this.toPrintedDate(new Date(new Date(startDate).getTime() + 45 * 60 * 1000));
+        return toPrintedDate(new Date(new Date(startDate).getTime() + 45 * 60 * 1000));
       },
-      toPrintedDate(date) {
-        var date = new Date(date);
-        return date.getHours() + ':' + date.getMinutes();
+      raidModified() {
+        console.log('raidModified event !!');
+        this.loadData();
       },
-      findGymById(id) {
-        return this.gyms.filter(gym => gym.id === id).reduce((a, b) => b, {});
-      },
-      addCoordinates(raids) {
+      async addCoordinates(raids) {
         for (let raid of raids) {
-          raid.gym = this.findGymById(raid.gymId);
+          raid.gym = await findGymById(raid.gymId);
         }
         return raids;
+      },
+      async loadData() {
+        console.log('load data');
+        const activeRaids = await this.addCoordinates(await getActiveRaids());
+
+        const greenIcon = new L.Icon({
+          iconUrl: 'assets/gym.png',
+          iconSize: [50, 50], // size of the icon
+          iconAnchor: [25, 50], // point of the icon which will correspond to marker's location
+          popupAnchor: [0, -50] // point from which the popup should open relative to the iconAnchor
+        });
+
+        this.markers = [];
+
+        for (let raid of activeRaids) {
+          this.markers.push({
+            raid,
+            latLng: {
+              lat: raid.gym.latitude,
+              lng: raid.gym.longitude
+            },
+            icon: greenIcon
+          });
+        }
       }
     },
     async created() {
@@ -143,33 +121,18 @@
         }
       });
 
-      this.gyms = await getGyms();
-
-      const activeRaids = this.addCoordinates(await getActiveRaids());
-
-      const greenIcon = new L.Icon({
-        iconUrl: 'assets/gym.png',
-        iconSize: [50, 50], // size of the icon
-        iconAnchor: [25, 50], // point of the icon which will correspond to marker's location
-        popupAnchor: [0, -50] // point from which the popup should open relative to the iconAnchor
-      });
-
-      for (let raid of activeRaids) {
-        this.markers.push({
-          raid,
-          latLng: {
-            lat: raid.gym.latitude,
-            lng: raid.gym.longitude
-          },
-          icon: greenIcon
-        });
-      }
+      this.loadData();
+      setInterval(() => this.loadData(), 20000);
     }
   }
 </script>
 
 <style lang="scss">
   @import '../node_modules/bootstrap/scss/bootstrap.scss';
+
+  $pink: #E17EAD;
+  $light-white: #FCFEFA;
+  $orange: #FC7B39;
 
   #app {
     height: 100%;
@@ -178,6 +141,26 @@
     top: 0;
     left: 0;
     z-index: 0;
+  }
+
+  .leaflet-tooltip {
+    background-color: transparent;
+    padding: 0!important;
+    border: none!important;
+    border-radius: 12px;
+    .countdown {
+      border: 2px solid $light-white;
+      border-radius: 12px;
+      color: $light-white;
+      font-weight: bold;
+      padding: 6px;
+    }
+    .ongoing {
+      background-color: $orange;
+    }
+    .unhatched {
+      background-color: $pink;
+    }
   }
 
   .gymName {
@@ -194,7 +177,6 @@
     overflow: auto; /* scrollbar will appear if the viewport is too tight to display all the popin content */
     opacity: 0;
     visibility: hidden;
-    z-index: 5454357;
 
     /* design */
 
@@ -253,7 +235,7 @@
     display: block;
   }
 
-  .smart-popin .sp-close {
+  .sp-close {
     position: absolute;
     top: 0;
     right: 0;
@@ -267,6 +249,7 @@
     color: #000000;
     font-weight: 900;
     text-decoration: none;
+    cursor: pointer;
   }
 
   /* misc */
