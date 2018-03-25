@@ -23,10 +23,13 @@
             <a href='#' @click="showAddRaid(marker.raid)">Modifier</a>
           </div>
         </v-popup>
-        <v-tooltip :options="buildTooltipOptions()" class="countdown unhatched">
-          <countdown :time="2 * 24 * 60 * 60 * 1000">
+        <!-- <v-tooltip :options="buildTooltipOptions()" class="countdown unhatched">
+          <countdown :time="buildRemainingTime(marker.raid.hatchTime)">
             <template slot-scope="props">{{ props.hours }}:{{ props.minutes }}:{{ props.seconds }}</template>
           </countdown>
+        </v-tooltip> -->
+        <v-tooltip :options="buildTooltipOptions()">
+          <raid-count-down :raid="marker.raid" />
         </v-tooltip>
       </v-marker>
     </v-map>
@@ -42,7 +45,8 @@
 <script>
   import {postRaid, getActiveRaids, findGymById} from './services/gyms-services'
   import {toPrintedDate} from './services/date-service'
-  import ManageRaid from './components/manageRaid'
+  import ManageRaid from './components/ManageRaid'
+  import RaidCountDown from './components/RaidCountDown'
 
   export default {
     data() {
@@ -53,7 +57,7 @@
         selectedRaid: {}
       }
     },
-    components : { ManageRaid },
+    components : { ManageRaid, RaidCountDown },
     methods: {
       toPrintedDate,
       showAddRaid(raid) {
@@ -130,10 +134,6 @@
 <style lang="scss">
   @import '../node_modules/bootstrap/scss/bootstrap.scss';
 
-  $pink: #E17EAD;
-  $light-white: #FCFEFA;
-  $orange: #FC7B39;
-
   #app {
     height: 100%;
     width: 100%;
@@ -148,19 +148,6 @@
     padding: 0!important;
     border: none!important;
     border-radius: 12px;
-    .countdown {
-      border: 2px solid $light-white;
-      border-radius: 12px;
-      color: $light-white;
-      font-weight: bold;
-      padding: 6px;
-    }
-    .ongoing {
-      background-color: $orange;
-    }
-    .unhatched {
-      background-color: $pink;
-    }
   }
 
   .gymName {

@@ -1,9 +1,9 @@
 function toPrintedDate(date) {
   var date = new Date(date);
-  return date.getHours() + ':' + date.getMinutes();
+  return date.toLocaleTimeString(undefined, {hour: '2-digit', minute: '2-digit'})
 }
 
-function toDate(date) {
+function timeToDate(date) {
   const [hour, minute] = date.split(':');
   var today = new Date();
   today.setHours(hour, minute);
@@ -12,5 +12,5 @@ function toDate(date) {
 
 export {
   toPrintedDate,
-  toDate
+  timeToDate
 }

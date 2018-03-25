@@ -31,7 +31,7 @@
 
 <script>
 
-import {toDate, toPrintedDate} from '../services/date-service'
+import {timeToDate, toPrintedDate} from '../services/date-service'
 import {getGyms, findGymIdByName, postRaid, putRaid} from '../services/gyms-services'
 
 export default {
@@ -60,10 +60,10 @@ export default {
       this.$validator.validateAll().then(async res => {
         if (res) {
           var id = await findGymIdByName(this.selectedGymName);
-          var timeOfPopDate = toDate(this.timeOfPop);
+          var timeOfPopDate = timeToDate(this.timeOfPop);
           var startTimeDate = timeOfPopDate;
           if (this.startTime) {
-            startTimeDate = toDate(this.startTime);
+            startTimeDate = timeToDate(this.startTime);
           }
           if(this.raid) {
             await putRaid({id: this.raid.id, gymId: id, hatchTime: timeOfPopDate.toISOString(), raidStartTime: startTimeDate.toISOString()});
