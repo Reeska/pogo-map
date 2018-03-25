@@ -7,7 +7,12 @@
     "start": "node index.js",
     "start:watch": "nodemon",
     "prestart:prod": "tsc",
-    "start:prod": "node dist/main.js"
+    "start:prod": "node dist/main.js",
+    "db:init": "npm run db:create && npm run db:createschema && npm run db:initdata",
+    "db:create": "node scripts/create-database.js",
+    "db:createschema": "node scripts/execute-database.js resources/02-schema.sql pogomap pogomapdb postgres",
+    "db:initdata": "node scripts/execute-database.js resources/03-gyms.sql pogomap pogomapdb postgres",
+    "db:destroy": "node scripts/drop-database.js"
   },
   "dependencies": {
     "@nestjs/common": "^4.5.9",
@@ -20,11 +25,12 @@
     "cors": "^2.8.4",
     "pg": "^7.3.0",
     "pg-hstore": "^2.3.2",
+    "pgtools": "^0.3.0",
     "redis": "^2.7.1",
     "reflect-metadata": "^0.1.12",
     "rxjs": "^5.5.6",
-    "typescript": "^2.6.2",
     "sequelize": "^4.13.6",
+    "typescript": "^2.6.2",
     "uuid": "^3.1.0"
   },
   "devDependencies": {
