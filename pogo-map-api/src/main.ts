@@ -10,7 +10,7 @@ async function bootstrap() {
     app.use(bodyParser.json());
     app.use(cors());
 
-    await app.listen(3000);
+    await app.listen(process.env.PORT || 3000);
 }
 
 bootstrap();
