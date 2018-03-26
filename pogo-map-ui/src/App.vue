@@ -34,10 +34,10 @@
       </v-marker>
     </v-map>
 
-    <manage-raid :raid="selectedRaid" @raidModified="raidModified()"></manage-raid>
+    <manage-raid :raid="selectedRaid" @raidModified="raidModified()" />
 
     <div style="height:50px; width:50px;z-index:5454357;position:absolute;right:10px;top:10px;" @click="showAddRaid()">
-      <a href="#"><img src="assets/add.png" style="height:50px;"/></a>
+      <a href="#"><img src="static/assets/add.png" style="height:50px;"/></a>
     </div>
   </div>
 </template>
@@ -90,7 +90,7 @@
         const activeRaids = await this.addCoordinates(await getActiveRaids());
 
         const greenIcon = new L.Icon({
-          iconUrl: 'assets/gym.png',
+          iconUrl: 'static/assets/gym.png',
           iconSize: [50, 50], // size of the icon
           iconAnchor: [25, 50], // point of the icon which will correspond to marker's location
           popupAnchor: [0, -50] // point from which the popup should open relative to the iconAnchor
