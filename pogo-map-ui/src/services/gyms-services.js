@@ -1,9 +1,11 @@
+const HOST = process.env.API_URL || 'http://localhost:3000';
+
 let gyms = [];
 
 async function getGyms () {
   if(!gyms.length) {
     gyms = await window
-      .fetch('http://localhost:3000/gyms')
+      .fetch(HOST + '/gyms')
       .then(response => response.json())
   }
   return gyms;
@@ -11,7 +13,7 @@ async function getGyms () {
 
 function postRaid (raid) {
   return window
-    .fetch('http://localhost:3000/raids', {
+    .fetch(HOST + '/raids', {
       body: JSON.stringify(raid),
       method: 'POST',
       headers: {
@@ -22,7 +24,7 @@ function postRaid (raid) {
 
 function putRaid (raid) {
   return window
-    .fetch('http://localhost:3000/raids/' + raid.id, {
+    .fetch(HOST + '/raids/' + raid.id, {
       body: JSON.stringify(raid),
       method: 'PUT',
       headers: {
@@ -47,7 +49,7 @@ function getActiveRaids() {
   var minimumDate = new Date(now.getTime() - 45*60*1000);
   var maximumDate = new Date(now.getTime() + 60*60*1000);
   return window
-    .fetch('http://localhost:3000/raids?start=' + minimumDate.toISOString() + '&end=' + maximumDate.toISOString())
+    .fetch(HOST + '/raids?start=' + minimumDate.toISOString() + '&end=' + maximumDate.toISOString())
     .then(response => response.json())
 }
 
