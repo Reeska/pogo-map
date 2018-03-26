@@ -1,25 +1,22 @@
 const pg = require('pg');
 const pgtools = require('pgtools');
 
-const [, ,
-    user = 'postgres', database = 'postgres', password = 'postgres', port = '5432'
-] = process.argv;
-
 const config = {
-    user,
-    database,
-    password,
-    port: Number(port)
+    host: process.env.DATABASE_HOST,
+    user : process.env.DATABASE_USERNAME,
+    database : process.env.DATABASE_NAME,
+    password: process.env.DATABASE_PASSWORD,
+    port: 5432
 };
 
-var pool = new pg.Pool(config);
+const pool = new pg.Pool(config);
 
 pool.connect(function (err, client, done) {
     if (err) {
         console.log('error: ', err);
         process.exit(1);
     }
-    client.query("create user pogomap createdb", function (err, result) {
+    client.query("create user pogomap createdb", function (err) {
         done();
         if (err) {
             console.log('error: ', err);

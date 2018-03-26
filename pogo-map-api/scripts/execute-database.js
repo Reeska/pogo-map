@@ -1,25 +1,22 @@
-var pg = require('pg');
-var fs = require('fs');
+const pg = require('pg');
+const fs = require('fs');
 
-const [, ,
-    file, user = 'postgres', database = 'postgres', password = 'postgres', port = '5432'
-] = process.argv;
+const [, , file] = process.argv;
 
-var pool = new pg.Pool({
-    user,
-    database,
-    password,
-    port: Number(port)
+console.log('database url', process.env.DATABASE_URL);
+
+const pool = new pg.Pool({
+    connectionString: process.env.DATABASE_URL
 });
 
-var sql = fs.readFileSync(file).toString();
+const sql = fs.readFileSync(file).toString();
 
 pool.connect(function (err, client, done) {
     if (err) {
         console.log('error: ', err);
         process.exit(1);
     }
-    client.query(sql, function (err, result) {
+    client.query(sql, function (err) {
         done();
 
         if (err) {
