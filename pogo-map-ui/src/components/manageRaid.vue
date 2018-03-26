@@ -25,6 +25,7 @@
           </div>
           <button type="submit" class="btn btn-primary">Enregistrer</button>
         </form>
+        <div class="alert alert-danger mt-3 mb-2" v-if="error">{{error}}</div>
       </div>
     </modal>
 </template>
@@ -41,7 +42,8 @@ export default {
       selectedGymName: '',
       timeOfPop: '',
       startTime: '',
-      gyms: []
+      gyms: [],
+      error: ''
     }
   },
   watch: {
@@ -65,15 +67,20 @@ export default {
           if (this.startTime) {
             startTimeDate = timeToDate(this.startTime);
           }
+          let res;
           if(this.raid) {
-            await putRaid({id: this.raid.id, gymId: id, hatchTime: timeOfPopDate.toISOString(), raidStartTime: startTimeDate.toISOString()});
-            this.$toasted.show('Raid modifié avec succès', {duration : 2000, className: 'toast-success', fullWidth: true, position: 'top-center', fitToScreen: false});
+            res = await putRaid({id: this.raid.id, gymId: id, hatchTime: timeOfPopDate.toISOString(), raidStartTime: startTimeDate.toISOString()})
+              .catch(e => e);
           } else {
-            await postRaid({gymId: id, hatchTime: timeOfPopDate.toISOString(), raidStartTime: startTimeDate.toISOString()});
-            this.$toasted.show('Raid ajouté avec succès', {duration : 2000, className: 'toast-success', fullWidth: true, position: 'top-center', fitToScreen: false});
+            res = await postRaid({gymId: id, hatchTime: timeOfPopDate.toISOString(), raidStartTime: startTimeDate.toISOString()})
+              .catch(e => e);
           }
-          this.$emit('raidModified');
-          this.$modal.hide('raid');
+          this.error = res.message;
+          if(!this.error) {
+            this.$toasted.show('Raid enregistré avec succès', {duration : 2000, className: 'toast-success', fullWidth: true, position: 'top-center', fitToScreen: false});
+            this.$emit('raidModified');
+            this.$modal.hide('raid');
+          }
         }
       });
     }

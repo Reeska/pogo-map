@@ -37,6 +37,10 @@ export class RaidController {
 
     @Post('/')
     async createRaid(@Body() raid: Raid) {
+        let raids = await this.raidRepository.getOverlappingRaids(raid.gymId, raid.hatchTime);
+        if(raids.length) {
+          throw new HttpException('Il existe déjà un raid en cours sur cette plage horaire', HttpStatus.CONFLICT);
+        }
         return await this.raidRepository.addRaid(raid);
     }
 

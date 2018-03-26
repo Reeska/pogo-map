@@ -21,6 +21,15 @@ export class RaidRepository {
         return await database.query(query, {replacements, type: database.QueryTypes.SELECT});
     }
 
+    async getOverlappingRaids(gymId, start): Promise<Raid[]> {
+        let startAsDate = new Date(start);
+        let startDate = new Date(startAsDate.getTime() - (105*60*1000));
+        let endDate = new Date(startAsDate.getTime() + (105*60*1000));
+        let query = `select ${this.fields} from raid where gym_id = :gymId and hatch_time between :startDate and :endDate`;
+        let replacements = {gymId, startDate, endDate};
+        return await database.query(query, {replacements, type: database.QueryTypes.SELECT});
+    }
+
     async getRaid(id: string): Promise<Raid> {
         const gyms = await database.query(`select ${this.fields} from raid where id = :id`, {
             replacements: {id},
@@ -38,7 +47,7 @@ export class RaidRepository {
         raid.id = uidGenerator();
 
         await database.query(
-            `insert into raid(id, gym_id, hatch_time, raid_start_time) 
+            `insert into raid(id, gym_id, hatch_time, raid_start_time)
             values(:id, :gymId, (:hatchTime)::timestamptz, (:raidStartTime)::timestamptz)`, {
                 replacements: raid
             });
@@ -49,7 +58,7 @@ export class RaidRepository {
 
     async editRaid(id: string, raid: Raid): Promise<Raid> {
         await database.query(
-            `update raid set hatch_time = :hatchTime, raid_start_time = :raidStartTime 
+            `update raid set hatch_time = :hatchTime, raid_start_time = :raidStartTime
             where id = :id`, {
             replacements: {...raid, id}
         });
