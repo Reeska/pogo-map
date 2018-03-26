@@ -1,1 +1,1 @@
-node: npm install && npm run build && npx serve dist --port $PORT
+nodejs: npm install && npm run build && npx serve dist --port $PORT
