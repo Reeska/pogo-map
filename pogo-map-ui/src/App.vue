@@ -23,11 +23,6 @@
             <a href='#' @click="showAddRaid(marker.raid)">Modifier</a>
           </div>
         </v-popup>
-        <!-- <v-tooltip :options="buildTooltipOptions()" class="countdown unhatched">
-          <countdown :time="buildRemainingTime(marker.raid.hatchTime)">
-            <template slot-scope="props">{{ props.hours }}:{{ props.minutes }}:{{ props.seconds }}</template>
-          </countdown>
-        </v-tooltip> -->
         <v-tooltip :options="buildTooltipOptions()">
           <raid-count-down :raid="marker.raid" />
         </v-tooltip>

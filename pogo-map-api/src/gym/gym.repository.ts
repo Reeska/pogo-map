@@ -26,20 +26,11 @@ export class GymRepository {
         gym.id = uidGenerator();
 
         await database.query(
-            `insert into gym(id, name, latitude, longitude) 
+            `insert into gym(id, name, latitude, longitude)
             values(:id, :name, :latitude, :longitude)`, {
                 replacements: gym
             });
 
         return gym;
     }
-
-    //
-    // async editAccount(uid: string, account: Account): Promise<Account> {
-    //     await database.query('update account set name = :name, balance = :balance where uid = :uid', {
-    //         replacements: {...account, uid}
-    //     });
-    //
-    //     return this.getAccount(uid);
-    // }
 }
