@@ -96,6 +96,10 @@ export default {
 
 <style>
 
+.v--modal-overlay {
+  z-index: 9999!important;
+}
+
 .toasted-container.top-center {
   top: 0px;
 }
