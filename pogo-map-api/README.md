@@ -1,8 +1,10 @@
-# Development
+# Pokemon Go GymMap API
 
-## Database
+## Development
 
-### Install PostgreSQL
+### Database
+
+#### Install PostgreSQL
 
 Install PostgreSQL in local :
 
@@ -12,7 +14,7 @@ docker pull postgres
 docker run --name postgres-3 -d -p 5432:5432 postgres:latest
 ```
 
-### Create database
+#### Create database
 
 ```bash
     export DATABASE_URL='postgres://postgres:postgres@localhost:5432/postgres'
@@ -20,7 +22,7 @@ docker run --name postgres-3 -d -p 5432:5432 postgres:latest
     npm run db:create
 ```
 
-### Init schema & data
+#### Init schema & data
 
 ```bash
     export DATABASE_URL='postgres://pogomap:postgres@localhost:5432/pogomapdb'
@@ -28,10 +30,23 @@ docker run --name postgres-3 -d -p 5432:5432 postgres:latest
     npm run db:init
 ```
 
-## Run
+### Run
 
 ```bash
     export DATABASE_URL='postgres://pogomap:postgres@localhost:5432/pogomapdb'
     
     npm start
+```
+
+## Deployment
+
+### Database
+
+Replace `PRODUCTION_DATABASE_URL` below :
+
+```bash
+    export DATABASE_URL='PRODUCTION_DATABASE_URL?ssl=true'
+    
+    node scripts/execute-database.js resources/V1.sql
+    # node scripts/execute-database.js resources/whatever.sql
 ```
