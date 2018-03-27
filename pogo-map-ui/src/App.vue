@@ -34,9 +34,9 @@
       </v-marker>
     </v-map>
 
-    <manage-raid :raid="selectedRaid" @raidModified="raidModified()" />
+    <manage-raid :raid="selectedRaid" @raidModified="raidModified()" @closeModal="closeModal()"/>
 
-    <div style="height:50px; width:50px;z-index:5454357;position:absolute;right:10px;top:10px;" @click="showAddRaid()">
+    <div v-if="showAddImage" style="height:50px; width:50px;z-index:5454357;position:absolute;right:10px;top:10px;" @click="showAddRaid()">
       <a href="#"><img src="static/assets/add.png" style="height:50px;"/></a>
     </div>
   </div>
@@ -54,7 +54,8 @@
         gyms: [],
         tileLayers: [],
         markers: [],
-        selectedRaid: {}
+        selectedRaid: {},
+        showAddImage: true
       }
     },
     components : { ManageRaid, RaidCountDown },
@@ -62,6 +63,7 @@
       toPrintedDate,
       showAddRaid(raid) {
         this.selectedRaid = raid;
+        this.showAddImage = false;
         this.$modal.show('raid');
       },
       buildTooltipOptions() {
@@ -76,8 +78,10 @@
         return toPrintedDate(new Date(new Date(startDate).getTime() + 45 * 60 * 1000));
       },
       raidModified() {
-        console.log('raidModified event !!');
         this.loadData();
+      },
+      closeModal() {
+        this.showAddImage = true;
       },
       async addCoordinates(raids) {
         for (let raid of raids) {
