@@ -51,9 +51,9 @@ export default {
       if(this.raid) {
         this.selectedGymName = this.raid.gym.name;
         this.timeOfPop = toPrintedDate(this.raid.hatchTime);
+        this.startTime = toPrintedDate(this.raid.raidStartTime);
       } else {
-        this.selectedGymName = '';
-        this.timeOfPop = '';
+        this.resetFields();
       }
     }
   },
@@ -77,6 +77,7 @@ export default {
           }
           this.error = res.message;
           if(!this.error) {
+            this.resetFields();
             this.$toasted.show('Raid enregistré avec succès', {duration : 2000, className: 'toast-success', fullWidth: true, position: 'top-center', fitToScreen: false});
             this.$emit('raidModified');
             this.$modal.hide('raid');
@@ -86,6 +87,11 @@ export default {
     },
     beforeClose() {
       this.$emit('closeModal');
+    },
+    resetFields() {
+      this.selectedGymName = '';
+      this.timeOfPop = '';
+      this.startTime = '';
     }
   },
   async created() {
