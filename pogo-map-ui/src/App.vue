@@ -12,6 +12,7 @@
         v-for="marker in markers"
         :lat-lng="marker.latLng"
         :icon="marker.icon"
+        :options="marker.options"
         :key="marker.raid.id">
         <v-popup>
           <div style="width: 150px; text-align: center">
@@ -23,15 +24,19 @@
             <a href='#' @click="showAddRaid(marker.raid)">Modifier</a>
           </div>
         </v-popup>
+
+        <div>test {{marker.raid.gym.name}}</div>
+
         <v-tooltip :options="buildTooltipOptions()">
-          <raid-count-down :raid="marker.raid" />
+          <raid-count-down :raid="marker.raid"/>
         </v-tooltip>
       </v-marker>
     </v-map>
 
     <manage-raid :raid="selectedRaid" @raidModified="raidModified()" @closeModal="closeModal()"/>
 
-    <div v-if="showAddImage" style="height:50px; width:50px;z-index:5454357;position:absolute;right:10px;top:10px;" @click="showAddRaid()">
+    <div v-if="showAddImage" style="height:50px; width:50px;z-index:5454357;position:absolute;right:10px;top:10px;"
+         @click="showAddRaid()">
       <a href="#"><img src="static/assets/add.png" style="height:50px;"/></a>
     </div>
   </div>
@@ -53,62 +58,8 @@
         showAddImage: true
       }
     },
-    components : { ManageRaid, RaidCountDown },
-    methods: {
-      toPrintedDate,
-      showAddRaid(raid) {
-        this.selectedRaid = raid;
-        this.showAddImage = false;
-        this.$modal.show('raid');
-      },
-      buildTooltipOptions() {
-        return {
-          permanent: true,
-          opacity: 1,
-          offset: new L.Point(0, -50),
-          direction: 'top'
-        }
-      },
-      getEndDate(startDate) {
-        return toPrintedDate(new Date(new Date(startDate).getTime() + 45 * 60 * 1000));
-      },
-      raidModified() {
-        this.loadData();
-      },
-      closeModal() {
-        this.showAddImage = true;
-      },
-      async addCoordinates(raids) {
-        for (let raid of raids) {
-          raid.gym = await findGymById(raid.gymId);
-        }
-        return raids;
-      },
-      async loadData() {
-        console.log('load data');
-        const activeRaids = await this.addCoordinates(await getActiveRaids());
+    components: {ManageRaid, RaidCountDown},
 
-        const greenIcon = new L.Icon({
-          iconUrl: 'static/assets/gym.png',
-          iconSize: [50, 50], // size of the icon
-          iconAnchor: [25, 50], // point of the icon which will correspond to marker's location
-          popupAnchor: [0, -50] // point from which the popup should open relative to the iconAnchor
-        });
-
-        this.markers = [];
-
-        for (let raid of activeRaids) {
-          this.markers.push({
-            raid,
-            latLng: {
-              lat: raid.gym.latitude,
-              lng: raid.gym.longitude
-            },
-            icon: greenIcon
-          });
-        }
-      }
-    },
     async created() {
       this.tileLayers.push({
         url: 'https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}',
@@ -125,13 +76,83 @@
       });
 
       this.loadData();
-      setInterval(() => this.loadData(), 20000);
+      //setInterval(() => this.loadData(), 20000);
+    },
+
+    methods: {
+      toPrintedDate,
+
+      showAddRaid(raid) {
+        this.selectedRaid = raid;
+        this.showAddImage = false;
+        this.$modal.show('raid');
+      },
+
+      buildTooltipOptions() {
+        return {
+          permanent: true,
+          opacity: 1,
+          offset: new L.Point(0, -50),
+          direction: 'top'
+        }
+      },
+
+      getEndDate(startDate) {
+        return toPrintedDate(new Date(new Date(startDate).getTime() + 45 * 60 * 1000));
+      },
+
+      raidModified() {
+        this.loadData();
+      },
+
+      closeModal() {
+        this.showAddImage = true;
+      },
+
+      async addCoordinates(raids) {
+        for (let raid of raids) {
+          raid.gym = await findGymById(raid.gymId);
+        }
+        return raids;
+      },
+
+      buildIcon(gym) {
+        return new L.DivIcon({
+          // iconUrl: 'static/assets/gym.png',
+          iconSize: [50, 50], // size of the icon
+          iconAnchor: [25, 50], // point of the icon which will correspond to marker's location
+          popupAnchor: [0, -50], // point from which the popup should open relative to the iconAnchor
+          html: `<div class="gym-marker ${gym.ex_eligible ? 'gym-ex' : ''}"></div>`
+        });
+      },
+
+      async loadData() {
+        console.log('load data');
+        const activeRaids = await this.addCoordinates(await getActiveRaids());
+
+        const greenIcon =
+
+        this.markers = [];
+
+        for (let raid of activeRaids) {
+          this.markers.push({
+            raid,
+            latLng: {
+              lat: raid.gym.latitude,
+              lng: raid.gym.longitude
+            },
+            icon: this.buildIcon(raid.gym)
+          });
+        }
+      }
     }
   }
 </script>
 
 <style lang="scss">
   @import '../node_modules/bootstrap/scss/bootstrap.scss';
+
+  $light-white: #FCFEFA;
 
   #app {
     height: 100%;
@@ -144,9 +165,36 @@
 
   .leaflet-tooltip {
     background-color: transparent;
-    padding: 0!important;
-    border: none!important;
+    padding: 0 !important;
+    border: none !important;
     border-radius: 12px;
+  }
+
+  .leaflet-div-icon {
+    background: none;
+    border: 0 none;
+  }
+
+  .gym-marker {
+    background: url('/static/assets/gym.png');
+    width: 50pt;
+    height: 50pt;
+    background-size: 50pt;
+    background-position: -9px 0px;
+
+    &.gym-ex:before {
+      content: 'EX';
+      position: relative;
+      background: #4e4e4e;
+      top: 0;
+      left: 31px;
+      text-align: center;
+      color: white;
+      border-radius: 15px;
+      border: 2px solid $light-white;
+      padding: 4px;
+      font-size: 8px;
+    }
   }
 
   .gymName {
