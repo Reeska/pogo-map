@@ -1,3 +1,19 @@
+create table gym
+(
+  id varchar(40) not null primary key,
+  name varchar(100),
+  latitude float,
+  longitude float
+);
+
+create table raid
+(
+  id varchar(40) not null primary key,
+  gym_id varchar(40),
+  hatch_time timestamp with time zone,
+  raid_start_time timestamp with time zone
+);
+
 INSERT INTO GYM(ID, NAME, LATITUDE, LONGITUDE) VALUES(1, 'Maternité, Ancienne Entrée', '48.837507', '2.3367083');
 INSERT INTO GYM(ID, NAME, LATITUDE, LONGITUDE) VALUES(2, 'La Naissance Des Formes', '48.839664', '2.329959');
 INSERT INTO GYM(ID, NAME, LATITUDE, LONGITUDE) VALUES(3, 'Ornement de Xoum', '48.838795', '2.332824');
@@ -52,19 +68,3 @@ INSERT INTO GYM(ID, NAME, LATITUDE, LONGITUDE) VALUES(51, 'Compagnie Parisienne 
 INSERT INTO GYM(ID, NAME, LATITUDE, LONGITUDE) VALUES(52, 'Notre-Dame De Bon Secours', '48.829827', '2.311030');
 INSERT INTO GYM(ID, NAME, LATITUDE, LONGITUDE) VALUES(53, 'Pigeonnier du 14ème', '48.828843', '2.305803');
 INSERT INTO GYM(ID, NAME, LATITUDE, LONGITUDE) VALUES(54, 'Caméléon fleur', '48.826720', '2.308735');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
