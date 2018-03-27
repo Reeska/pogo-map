@@ -1,5 +1,5 @@
 <template>
-  <modal name="raid" height="auto">
+  <modal name="raid" height="auto" :adaptive="true">
     <div class="p-3">
       <div class="sp-close" @click="$modal.hide('raid')">×</div>
         <h2>{{ raid ? 'Modifier' : 'Ajouter'}} un raid 5 &#9733;</h2>
