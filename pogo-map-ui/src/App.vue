@@ -13,8 +13,8 @@
         :lat-lng="marker.latLng"
         :icon="marker.icon"
         :options="marker.options"
-        :key="marker.raid.id">
-        <v-popup>
+        :key="marker.id">
+        <v-popup v-if="marker.raid">
           <div style="width: 150px; text-align: center">
             <div class="gymName">{{ marker.raid.gym.name }}</div>
             5 &#9733;<br/>
@@ -25,9 +25,7 @@
           </div>
         </v-popup>
 
-        <div>test {{marker.raid.gym.name}}</div>
-
-        <v-tooltip :options="buildTooltipOptions()">
+        <v-tooltip v-if="marker.raid" :options="buildTooltipOptions()" >
           <raid-count-down :raid="marker.raid"/>
         </v-tooltip>
       </v-marker>
@@ -39,11 +37,15 @@
          @click="showAddRaid()">
       <a href="#"><img src="static/assets/add.png" style="height:50px;"/></a>
     </div>
+
+    <!--<div class="refresh-action" :class="{'infinite-rotate': loading}" @click="loadData()">-->
+      <!--<i class="fas fa-sync-alt"></i>-->
+    <!--</div>-->
   </div>
 </template>
 
 <script>
-  import {postRaid, getActiveRaids, findGymById} from './services/gyms-services'
+  import {getActiveRaids, findGymById} from './services/gyms-services'
   import {toPrintedDate} from './services/date-service'
   import ManageRaid from './components/ManageRaid'
   import RaidCountDown from './components/RaidCountDown'
@@ -55,7 +57,8 @@
         tileLayers: [],
         markers: [],
         selectedRaid: {},
-        showAddImage: true
+        showAddImage: true,
+        loading: false
       }
     },
     components: {ManageRaid, RaidCountDown},
@@ -76,7 +79,7 @@
       });
 
       this.loadData();
-      //setInterval(() => this.loadData(), 20000);
+      setInterval(() => this.loadData(), 20000);
     },
 
     methods: {
@@ -128,14 +131,15 @@
 
       async loadData() {
         console.log('load data');
-        const activeRaids = await this.addCoordinates(await getActiveRaids());
+        this.loading = true;
 
-        const greenIcon =
+        const activeRaids = await this.addCoordinates(await getActiveRaids());
 
         this.markers = [];
 
         for (let raid of activeRaids) {
           this.markers.push({
+            id: raid.id,
             raid,
             latLng: {
               lat: raid.gym.latitude,
@@ -144,6 +148,8 @@
             icon: this.buildIcon(raid.gym)
           });
         }
+
+        this.loading = false;
       }
     }
   }
@@ -200,6 +206,36 @@
   .gymName {
     font-weight: bold;
     font-size: 15px;
+  }
+
+  .refresh-action {
+    z-index: 9999;
+    position: absolute;
+    right: 12px;
+    top: 67px;
+
+    i {
+      border: 2px solid #4178ce;
+      background: #54a0e6;
+      border-radius: 30px;
+      padding: 7px;
+      font-size: 27px;
+      cursor: pointer;
+      color: white;
+    }
+  }
+
+  .infinite-rotate {
+    animation: btn-loading 1s infinite linear;
+  }
+
+  @keyframes btn-loading {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(359deg);
+    }
   }
 
   .smart-popin {
