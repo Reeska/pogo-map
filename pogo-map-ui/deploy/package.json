@@ -1,0 +1,22 @@
+{
+  "name": "pogo-map",
+  "version": "1.0.0",
+  "description": "A Vue.js project",
+  "author": "tchampion <tchampion@xebia.fr>",
+  "private": true,
+  "scripts": {
+    "start": "npx serve --port $PORT",
+  },
+  "dependencies": {
+    "serve": "^6.5.3",
+  },
+  "engines": {
+    "node": ">= 4.0.0",
+    "npm": ">= 3.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
+}
