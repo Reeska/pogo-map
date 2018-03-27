@@ -51,7 +51,9 @@ export default {
       if(this.raid) {
         this.selectedGymName = this.raid.gym.name;
         this.timeOfPop = toPrintedDate(this.raid.hatchTime);
-        this.startTime = toPrintedDate(this.raid.raidStartTime);
+        if(this.raid.raidStartTime) {
+          this.startTime = toPrintedDate(this.raid.raidStartTime);
+        }
       } else {
         this.resetFields();
       }
@@ -63,16 +65,17 @@ export default {
         if (res) {
           var id = await findGymIdByName(this.selectedGymName);
           var timeOfPopDate = timeToDate(this.timeOfPop);
-          var startTimeDate = timeOfPopDate;
           if (this.startTime) {
-            startTimeDate = timeToDate(this.startTime);
+            var startTimeDate = timeToDate(this.startTime);
           }
           let res;
           if(this.raid) {
-            res = await putRaid({id: this.raid.id, gymId: id, hatchTime: timeOfPopDate.toISOString(), raidStartTime: startTimeDate.toISOString()})
+            res = await putRaid({id: this.raid.id, gymId: id, hatchTime: timeOfPopDate.toISOString(),
+              raidStartTime: startTimeDate ? startTimeDate.toISOString() : ''})
               .catch(e => e);
           } else {
-            res = await postRaid({gymId: id, hatchTime: timeOfPopDate.toISOString(), raidStartTime: startTimeDate.toISOString()})
+            res = await postRaid({gymId: id, hatchTime: timeOfPopDate.toISOString(), raidStartTime: startTimeDate ?
+              startTimeDate.toISOString() : ''})
               .catch(e => e);
           }
           this.error = res.message;

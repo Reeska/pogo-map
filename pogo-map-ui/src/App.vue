@@ -19,7 +19,7 @@
             5 &#9733;<br/>
             Pop : {{ toPrintedDate(marker.raid.hatchTime) }}<br/>
             Fin : {{ getEndDate(marker.raid.hatchTime) }}<br/>
-            On lance à : {{ toPrintedDate(marker.raid.raidStartTime) }}<br/>
+            On lance à : {{ marker.raid.raidStartTime ? toPrintedDate(marker.raid.raidStartTime) : '-' }}<br/>
             <a href='#' @click="showAddRaid(marker.raid)">Modifier</a>
           </div>
         </v-popup>

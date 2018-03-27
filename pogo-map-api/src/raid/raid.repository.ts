@@ -48,7 +48,7 @@ export class RaidRepository {
 
         await database.query(
             `insert into raid(id, gym_id, hatch_time, raid_start_time)
-            values(:id, :gymId, (:hatchTime)::timestamptz, (:raidStartTime)::timestamptz)`, {
+            values(:id, :gymId, (:hatchTime)::timestamptz, ${raid.raidStartTime ? `(:raidStartTime)::timestamptz` : `null`})`, {
                 replacements: raid
             });
 
@@ -58,7 +58,7 @@ export class RaidRepository {
 
     async editRaid(id: string, raid: Raid): Promise<Raid> {
         await database.query(
-            `update raid set hatch_time = :hatchTime, raid_start_time = :raidStartTime
+            `update raid set hatch_time = :hatchTime, raid_start_time = ${raid.raidStartTime ? `:raidStartTime` : `null`}
             where id = :id`, {
             replacements: {...raid, id}
         });
