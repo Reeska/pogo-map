@@ -1,46 +1,49 @@
 <template>
   <div id="app">
-    <v-map :zoom=15 :center="[48.828036, 2.32696]">
-      <v-tilelayer
-        v-for="tileLayer in tileLayers"
-        :url="tileLayer.url"
-        :options="tileLayer.options"
-        :key="tileLayer.url"
-      />
+    <v-app>
+      <v-map :zoom=15 :center="[48.828036, 2.32696]">
+        <v-tilelayer
+          v-for="tileLayer in tileLayers"
+          :url="tileLayer.url"
+          :options="tileLayer.options"
+          :key="tileLayer.url"
+        />
 
-      <v-marker
-        v-for="marker in markers"
-        :lat-lng="marker.latLng"
-        :icon="marker.icon"
-        :options="marker.options"
-        :key="marker.id">
-        <v-popup v-if="marker.raid">
-          <div style="width: 150px; text-align: center">
-            <div class="gymName">{{ marker.raid.gym.name }}</div>
-            5 &#9733;<br/>
-            Pop : {{ toPrintedDate(marker.raid.hatchTime) }}<br/>
-            Fin : {{ getEndDate(marker.raid.hatchTime) }}<br/>
-            On lance à : {{ marker.raid.raidStartTime ? toPrintedDate(marker.raid.raidStartTime) : '-' }}<br/>
-            <a href='#' @click="showAddRaid(marker.raid)">Modifier</a>
-          </div>
-        </v-popup>
+        <v-marker
+          v-for="marker in markers"
+          :lat-lng="marker.latLng"
+          :icon="marker.icon"
+          :options="marker.options"
+          :key="marker.id">
+          <v-popup v-if="marker.raid">
+            <div style="width: 150px; text-align: center">
+              <div class="gymName">{{ marker.raid.gym.name }}</div>
+              5 &#9733;<br/>
+              Pop : {{ toPrintedDate(marker.raid.hatchTime) }}<br/>
+              Fin : {{ getEndDate(marker.raid.hatchTime) }}<br/>
+              On lance à : {{ marker.raid.raidStartTime ? toPrintedDate(marker.raid.raidStartTime) : '-' }}<br/>
+              <a href='#' @click="showAddRaid(marker.raid)">Modifier</a>
+            </div>
+          </v-popup>
 
-        <v-tooltip v-if="marker.raid" :options="buildTooltipOptions()" >
-          <raid-count-down :raid="marker.raid"/>
-        </v-tooltip>
-      </v-marker>
-    </v-map>
+          <v-tooltip v-if="marker.raid" :options="buildTooltipOptions()">
+            <raid-count-down :raid="marker.raid"/>
+          </v-tooltip>
+        </v-marker>
+      </v-map>
 
-    <manage-raid :raid="selectedRaid" @raidModified="raidModified()" @closeModal="closeModal()"/>
+      <manage-raid :raid="selectedRaid" @raidModified="raidModified()" @closeModal="closeModal()"/>
 
-    <div v-if="showAddImage" style="height:50px; width:50px;z-index:5454357;position:absolute;right:10px;top:10px;"
-         @click="showAddRaid()">
-      <a href="#"><img src="static/assets/add.png" style="height:50px;"/></a>
-    </div>
+      <div v-if="showAddImage" style="height:50px; width:50px;z-index:5454357;position:absolute;right:10px;top:10px;"
+           @click="showAddRaid()">
+        <a href="#"><img src="static/assets/add.png" style="height:50px;"/></a>
+      </div>
 
-    <!--<div class="refresh-action" :class="{'infinite-rotate': loading}" @click="loadData()">-->
-      <!--<i class="fas fa-sync-alt"></i>-->
-    <!--</div>-->
+      <!--<div class="refresh-action" :class="{'infinite-rotate': loading}" @click="loadData()">-->
+        <!--<i class="fas fa-sync-alt"></i>-->
+      <!--</div>-->
+
+    </v-app>
   </div>
 </template>
 
@@ -130,7 +133,6 @@
       },
 
       async loadData() {
-        console.log('load data');
         this.loading = true;
 
         const activeRaids = await this.addCoordinates(await getActiveRaids());

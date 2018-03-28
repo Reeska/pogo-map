@@ -3,28 +3,36 @@
     <div class="p-3">
       <div class="sp-close" @click="$modal.hide('raid')">×</div>
         <h2>{{ raid ? 'Modifier' : 'Ajouter'}} un raid 5 &#9733;</h2>
-        <form @submit.prevent="saveRaid()">
-          <div class="form-group">
-            <label for="gymName">Nom de l'arène</label>
-            <input type="text" v-validate="'required'" list="gyms" class="form-control" v-model="selectedGymName"
-                   id="gymName" placeholder="Nom de l'arène">
-          </div>
-          <datalist id="gyms">
-            <option v-for="gym in gyms" :id="gym.id" :value="gym.name"></option>
-          </datalist>
-          <div class="form-group">
-            <label for="timeOfPop">Heure du pop</label>
-            <input type="text" v-validate="'required|regex:^[0-9]{2}:[0-9]{2}$'" name="timeOfPop"
-                   class="form-control" v-model="timeOfPop" id="timeOfPop" placeholder="HH:MM : ex 14:45">
-            <span v-show="errors.has('timeOfPop')" class="help is-danger">{{ errors.first('timeOfPop') }}</span>
-          </div>
-          <div class="form-group">
-            <label for="timeOfRaid">On lance à</label>
-            <input type="text" v-validate="'regex:^[0-9]{2}:[0-9]{2}$'" v-model="startTime" class="form-control"
-                   id="timeOfRaid" placeholder="HH:MM : ex 14:45">
-          </div>
+        <v-form v-model="valid" @submit.prevent="saveRaid()">
+          <v-select
+            :items="gyms"
+            item-text="name"
+            v-model="selectedGymName"
+            label="Nom de l'arène"
+            autocomplete
+            required
+          ></v-select>
+          <v-text-field
+            label="Heure du pop"
+            v-model="timeOfPop"
+            :rules="timeOfPopRules"
+            placeholder="Au format HH:MM ex : 14:45"
+            :validate-on-blur="true"
+            mask="##:##"
+            :return-masked-value="true"
+            required
+          ></v-text-field>
+          <v-text-field
+            label="On lance à"
+            v-model="startTime"
+            :rules="startTimeRules"
+            placeholder="Au format HH:MM ex : 14:45"
+            :validate-on-blur="true"
+            mask="##:##"
+            :return-masked-value="true"
+          ></v-text-field>
           <button type="submit" class="btn btn-primary">Enregistrer</button>
-        </form>
+        </v-form>
         <div class="alert alert-danger mt-3 mb-2" v-if="error">{{error}}</div>
       </div>
     </modal>
@@ -43,7 +51,15 @@ export default {
       timeOfPop: '',
       startTime: '',
       gyms: [],
-      error: ''
+      error: '',
+      valid: false,
+      timeOfPopRules: [
+        v => !!v || 'L\'heure du pop est obligatoire',
+        v => /^[0-9]{2}:[0-9]{2}$/.test(v) || 'L\'heure du pop n\'est pas au bon format'
+      ],
+      startTimeRules: [
+        v => !v || /^[0-9]{2}:[0-9]{2}$/.test(v) || 'L\'heure de lancement n\'est pas au bon format'
+      ]
     }
   },
   watch: {
@@ -106,7 +122,7 @@ export default {
 <style>
 
 .v--modal-overlay {
-  z-index: 10000!important;
+  z-index: 9999!important;
 }
 
 .toasted-container.top-center {
