@@ -1,6 +1,10 @@
 import * as Sequelize from 'sequelize';
 
-const database: Sequelize.Sequelize = new Sequelize(process.env.DATABASE_URL);
+const database: Sequelize.Sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialectOptions: {
+        ssl: process.env.DATABASE_URL.includes("ssl=true")
+    }
+});
 
 database
     .authenticate()
