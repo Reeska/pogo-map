@@ -32,17 +32,23 @@
         </v-marker>
       </v-map>
 
-      <manage-raid :raid="selectedRaid" @raidModified="raidModified()" @closeModal="closeModal()"/>
+      <manage-raid :raid="selectedRaid" @raidModified="raidModified($event)" @closeModal="closeModal()"/>
 
-      <div v-if="showAddImage" style="height:50px; width:50px;z-index:5454357;position:absolute;right:10px;top:10px;"
-           @click="showAddRaid()">
-        <a href="#"><img src="static/assets/add.png" style="height:50px;"/></a>
+      <div v-if="showAddImage" class="action-add" @click="showAddRaid()">
+        <img src="static/assets/add.png" style="height:50px;"/>
       </div>
 
       <!--<div class="refresh-action" :class="{'infinite-rotate': loading}" @click="loadData()">-->
-        <!--<i class="fas fa-sync-alt"></i>-->
+      <!--<i class="fas fa-sync-alt"></i>-->
       <!--</div>-->
 
+      <v-snackbar
+        :timeout="2000"
+        :top="true"
+        v-model="toast.visible">
+        {{ toast.text }}
+        <v-btn flat @click.native="toast.visible = false">Close</v-btn>
+      </v-snackbar>
     </v-app>
   </div>
 </template>
@@ -61,7 +67,11 @@
         markers: [],
         selectedRaid: {},
         showAddImage: true,
-        loading: false
+        loading: false,
+        toast: {
+          visible: false,
+          text: ''
+        }
       }
     },
     components: {ManageRaid, RaidCountDown},
@@ -107,7 +117,8 @@
         return toPrintedDate(new Date(new Date(startDate).getTime() + 45 * 60 * 1000));
       },
 
-      raidModified() {
+      raidModified(event) {
+        this.showToast(event.message);
         this.loadData();
       },
 
@@ -152,13 +163,18 @@
         }
 
         this.loading = false;
+      },
+
+      showToast(text) {
+        this.toast.text = text;
+        this.toast.visible = true;
       }
     }
   }
 </script>
 
 <style lang="scss">
-  @import '../node_modules/bootstrap/scss/bootstrap.scss';
+  /*@import '../node_modules/bootstrap/scss/bootstrap.scss';*/
 
   $light-white: #FCFEFA;
 
@@ -208,6 +224,16 @@
   .gymName {
     font-weight: bold;
     font-size: 15px;
+  }
+
+  .action-add {
+    height: 50px;
+    width: 50px;
+    z-index: 10000;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
   }
 
   .refresh-action {
@@ -341,6 +367,12 @@
     padding: 0.5em 1.5em;
     border-radius: 20px;
     margin-bottom: 0.8em;
+  }
+
+  /* Vuetify */
+
+  .snack {
+    z-index: 10001;
   }
 
   html {
