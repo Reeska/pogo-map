@@ -2,10 +2,11 @@ import {Component} from "@nestjs/common";
 import database from "../database";
 import * as uidGenerator from "uuid/v1";
 import {Raid} from "./raid.model";
+import * as Bluebird from "bluebird";
 
 @Component()
 export class RaidRepository {
-    fields: string = 'id, gym_id as "gymId", hatch_time as "hatchTime", raid_start_time as "raidStartTime"';
+    fields: string = 'id, gym_id as "gymId", hatch_time as "hatchTime", raid_start_time as "raidStartTime", players';
 
     async getRaids(start, end): Promise<Raid[]> {
         let query = '';
@@ -22,11 +23,12 @@ export class RaidRepository {
     }
 
     async getOverlappingRaids(gymId, start): Promise<Raid[]> {
-        let startAsDate = new Date(start);
-        let startDate = new Date(startAsDate.getTime() - (105*60*1000));
-        let endDate = new Date(startAsDate.getTime() + (105*60*1000));
-        let query = `select ${this.fields} from raid where gym_id = :gymId and hatch_time between :startDate and :endDate`;
-        let replacements = {gymId, startDate, endDate};
+        const startAsDate = new Date(start);
+        const startDate = new Date(startAsDate.getTime() - (105*60*1000));
+        const endDate = new Date(startAsDate.getTime() + (105*60*1000));
+        const query = `select ${this.fields} from raid where gym_id = :gymId and hatch_time between :startDate and :endDate`;
+        const replacements = {gymId, startDate, endDate};
+
         return await database.query(query, {replacements, type: database.QueryTypes.SELECT});
     }
 
@@ -47,9 +49,11 @@ export class RaidRepository {
         raid.id = uidGenerator();
 
         await database.query(
-            `insert into raid(id, gym_id, hatch_time, raid_start_time)
-            values(:id, :gymId, (:hatchTime)::timestamptz, ${raid.raidStartTime ? `(:raidStartTime)::timestamptz` : `null`})`, {
-                replacements: raid
+            `insert into raid(id, gym_id, hatch_time, raid_start_time, players)
+                values(:id, :gymId, (:hatchTime)::timestamptz, 
+                ${raid.raidStartTime ? `(:raidStartTime)::timestamptz` : `null`},
+                (:players)::json)`, {
+                replacements: {...raid, players: JSON.stringify(raid.players || null)}
             });
 
         return raid;
@@ -58,7 +62,9 @@ export class RaidRepository {
 
     async editRaid(id: string, raid: Raid): Promise<Raid> {
         await database.query(
-            `update raid set hatch_time = :hatchTime, raid_start_time = ${raid.raidStartTime ? `:raidStartTime` : `null`}
+            `update raid set 
+            hatch_time = :hatchTime, 
+            raid_start_time = ${raid.raidStartTime ? `:raidStartTime` : `null`}
             where id = :id`, {
             replacements: {...raid, id}
         });
@@ -66,8 +72,19 @@ export class RaidRepository {
         return this.getRaid(id);
     }
 
-    async deleteRaid(id: string) {
-        await database.query('delete from raid where id = :id', {
+    async editRaidPlayers(id: string, raid: Raid): Promise<Raid> {
+        await database.query(
+            `update raid set 
+            players = (:players)::json
+            where id = :id`, {
+                replacements: {players: JSON.stringify(raid.players || null), id}
+            });
+
+        return this.getRaid(id);
+    }
+
+    deleteRaid(id: string): Bluebird<any> {
+        return database.query('delete from raid where id = :id', {
             replacements: {id}
         });
     }

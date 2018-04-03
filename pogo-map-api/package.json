@@ -11,8 +11,7 @@
     "db:create": "node scripts/create-database.js",
     "db:destroy": "node scripts/drop-database.js",
     "db:init": "npm run db:createschema && npm run db:initdata",
-    "db:createschema": "node scripts/execute-database.js resources/02-schema.sql",
-    "db:initdata": "node scripts/execute-database.js resources/03-gyms.sql"
+    "db:createschema": "node scripts/execute-database.js resources/sql/V1.sql"
   },
   "dependencies": {
     "@nestjs/common": "^4.5.9",

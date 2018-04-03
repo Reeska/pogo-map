@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import {RaidRepository} from "./raid.repository";
 import {Raid} from "./raid.model";
+import {Player} from "./player.model";
 
 @Controller('/raids')
 export class RaidController {
@@ -54,5 +55,30 @@ export class RaidController {
     @Delete('/:id')
     async deleteRaid(@Param('id') id) {
         return await this.raidRepository.deleteRaid(id);
+    }
+
+    @Post('/:id/players')
+    async addPlayers(@Param('id') id, @Body() newPlayer: Player) {
+        const raid = await this.getRaid(id);
+
+        if (raid.players) {
+            const newPlayerPattern = new RegExp(`^${newPlayer.nickname}$`);
+
+            const playerAlreadyRegistered = raid.players
+                .filter(player => newPlayerPattern.test(player.nickname))
+                .length > 0;
+
+            if (playerAlreadyRegistered) {
+                throw new HttpException('Joueur déjà enregistré pour ce raid', HttpStatus.CONFLICT);
+            }
+        } else {
+            raid.players = [];
+        }
+
+        raid.players.push(newPlayer);
+
+        await this.raidRepository.editRaidPlayers(id, raid);
+
+        return raid.players;
     }
 }
