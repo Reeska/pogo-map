@@ -72,6 +72,8 @@
 
     watch: {
       raid() {
+        this.pseudo = localStorage.getItem('nickname');
+
         if(this.raid) {
           this.selectedGymName = this.raid.gym.name;
           this.players = this.raid.players;
@@ -94,12 +96,17 @@
         }
         const res = await postPlayer(this.raid.id, {nickname: this.pseudo, accounts: this.numberOfAccounts})
           .catch(e => e);
+
         this.error = res.message;
+
         if (!this.error) {
-          this.resetFields();
+          localStorage.setItem('nickname', this.pseudo);
+
           this.$emit('playerAdded', {
             message: 'Participants enregistrés avec succès'
           });
+
+          this.resetFields();
           this.$modal.hide('player');
         }
       },

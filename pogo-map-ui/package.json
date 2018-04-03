@@ -21,7 +21,6 @@
     "vue-router": "^3.0.1",
     "vue-toasted": "^1.1.24",
     "vue2-leaflet": "0.0.60",
-    "vueleaflet": "^2.1.1",
     "vuetify": "^1.0.11"
   },
   "devDependencies": {

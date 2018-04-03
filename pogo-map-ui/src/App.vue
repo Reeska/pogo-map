@@ -110,6 +110,7 @@
 
       showAddPlayer(raid) {
         this.selectedRaid = raid;
+        this.showAddImage = false;
         this.$modal.show('player');
       },
 
