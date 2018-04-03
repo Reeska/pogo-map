@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <v-app>
-      <v-map :zoom=15 :center="[48.828036, 2.32696]">
+      <v-map :zoom=15 :center="map.center">
         <v-tilelayer
           v-for="tileLayer in tileLayers"
           :url="tileLayer.url"
@@ -38,11 +38,11 @@
       <add-player :raid="selectedRaid" @playerAdded="raidModified($event)" @closeModal="closeModal()"/>
 
       <div v-if="showAddImage" class="action-add" @click="showAddRaid()">
-        <img src="static/assets/add.png" style="height:50px;"/>
+        <img src="static/assets/add.png"/>
       </div>
 
       <!--<div class="refresh-action" :class="{'infinite-rotate': loading}" @click="loadData()">-->
-      <!--<i class="fas fa-sync-alt"></i>-->
+        <!--<i class="fas fa-sync-alt"></i>-->
       <!--</div>-->
 
       <v-snackbar
@@ -66,6 +66,9 @@
   export default {
     data() {
       return {
+        map: {
+          center: [48.828036, 2.32696]
+        },
         gyms: [],
         tileLayers: [],
         markers: [],
@@ -115,8 +118,8 @@
       },
 
       getNumberOfPlayers(raid) {
-        if(raid.players) {
-          return raid.players.map(player => player.accounts).reduce((a,b) => a+b, 0);
+        if (raid.players) {
+          return raid.players.map(player => player.accounts).reduce((a, b) => a + b, 0);
         }
         return 0;
       },
@@ -251,6 +254,10 @@
     right: 10px;
     top: 10px;
     cursor: pointer;
+
+    img {
+      height: 50px;
+    }
   }
 
   .refresh-action {
