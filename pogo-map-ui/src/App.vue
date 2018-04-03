@@ -23,6 +23,8 @@
               Fin : {{ getEndDate(marker.raid.hatchTime) }}<br/>
               On lance à : {{ marker.raid.raidStartTime ? toPrintedDate(marker.raid.raidStartTime) : '-' }}<br/>
               <a href='#' @click="showAddRaid(marker.raid)">Modifier</a>
+              <div style="margin-top: 10px"><strong>{{getNumberOfPlayers(marker.raid)}} participants</strong></div>
+              <div><a href="#" @click="showAddPlayer(marker.raid)">Ajouter un participant</a></div>
             </div>
           </v-popup>
 
@@ -33,6 +35,7 @@
       </v-map>
 
       <manage-raid :raid="selectedRaid" @raidModified="raidModified($event)" @closeModal="closeModal()"/>
+      <add-player :raid="selectedRaid" @playerAdded="raidModified($event)" @closeModal="closeModal()"/>
 
       <div v-if="showAddImage" class="action-add" @click="showAddRaid()">
         <img src="static/assets/add.png" style="height:50px;"/>
@@ -57,6 +60,7 @@
   import {getActiveRaids, findGymById} from './services/gyms-services'
   import {toPrintedDate} from './services/date-service'
   import ManageRaid from './components/ManageRaid'
+  import AddPlayer from './components/AddPlayer'
   import RaidCountDown from './components/RaidCountDown'
 
   export default {
@@ -74,7 +78,7 @@
         }
       }
     },
-    components: {ManageRaid, RaidCountDown},
+    components: {ManageRaid, AddPlayer, RaidCountDown},
 
     async created() {
       this.tileLayers.push({
@@ -102,6 +106,18 @@
         this.selectedRaid = raid;
         this.showAddImage = false;
         this.$modal.show('raid');
+      },
+
+      showAddPlayer(raid) {
+        this.selectedRaid = raid;
+        this.$modal.show('player');
+      },
+
+      getNumberOfPlayers(raid) {
+        if(raid.players) {
+          return raid.players.map(player => player.accounts).reduce((a,b) => a+b, 0);
+        }
+        return 0;
       },
 
       buildTooltipOptions() {

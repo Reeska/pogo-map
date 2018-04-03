@@ -33,6 +33,17 @@ function putRaid(raid) {
     }).then(response => response.json());
 }
 
+function postPlayer(raidId, player) {
+  return window
+    .fetch(HOST + '/raids/' + raidId + '/players', {
+      body: JSON.stringify(player),
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json'
+      }
+    }).then(response => response.json());
+}
+
 async function findGymById(id) {
   return (await getGyms()).filter(gym => gym.id === id)
     .reduce((a, b) => b, {});
@@ -53,5 +64,6 @@ export {
   postRaid,
   getActiveRaids,
   findGymById,
-  putRaid
+  putRaid,
+  postPlayer
 }

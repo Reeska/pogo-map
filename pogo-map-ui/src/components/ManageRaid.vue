@@ -47,19 +47,16 @@
         <v-btn @click="saveRaid()">Enregistrer</v-btn>
       </v-form>
 
-      <div class="alert alert-danger mt-3 mb-2" v-if="error">{{error}}</div>
+      <v-alert type="error" :value="error">{{error}}</v-alert>
     </v-container>
   </modal>
 </template>
 
 <script>
-
   import {timeToDate, toPrintedDate} from '../services/date-service'
   import {getGyms, postRaid, putRaid} from '../services/gyms-services'
-
   export default {
     props: ['raid'],
-
     data() {
       return {
         selectedGym: null,
@@ -78,11 +75,9 @@
         }
       }
     },
-
     async created() {
       this.gyms = await getGyms();
     },
-
     watch: {
       raid() {
         if (this.raid) {
@@ -91,29 +86,21 @@
             .forEach(gym => {
               this.selectedGym = gym
             });
-
           this.timeOfPop = toPrintedDate(this.raid.hatchTime);
-
           if (this.raid.raidStartTime) {
             this.startTime = toPrintedDate(this.raid.raidStartTime);
           }
         }
       }
     },
-
     methods: {
       async saveRaid() {
-        console.log('gym', this.selectedGym);
-
         if (!this.$refs.manageRaidForm.validate()) {
           return;
         }
-
         const timeOfPopDate = timeToDate(this.timeOfPop);
         const startTimeDate = this.startTime ? timeToDate(this.startTime) : null;
-
         let res;
-
         if (this.raid) {
           res = await putRaid({
             id: this.raid.id, gymId: this.selectedGym.id, hatchTime: timeOfPopDate.toISOString(),
@@ -127,24 +114,18 @@
           })
             .catch(e => e);
         }
-
         this.error = res.message;
-
         if (!this.error) {
           this.resetFields();
-
           this.$emit('raidModified', {
             message: 'Raid enregistré avec succès'
           });
-
           this.$modal.hide('raid');
         }
       },
-
       beforeClose() {
         this.$emit('closeModal');
       },
-
       resetFields() {
         this.$refs.manageRaidForm.reset();
       }
@@ -156,24 +137,19 @@
   form {
     text-align: center;
   }
-
   .v--modal-overlay {
     z-index: 9999 !important;
   }
-
   .toasted-container.top-center {
     top: 0;
   }
-
   .toasted.toast-success {
     color: #2ecc71 !important;
     justify-content: center;
   }
-
   h2 {
     text-align: center;
   }
-
   .modal-mask {
     position: fixed;
     z-index: 9998;
@@ -185,12 +161,10 @@
     display: table;
     transition: opacity .3s ease;
   }
-
   .modal-wrapper {
     display: table-cell;
     vertical-align: middle;
   }
-
   .modal-container {
     width: 300px;
     margin: 0 auto;
@@ -201,32 +175,25 @@
     transition: all .3s ease;
     font-family: Helvetica, Arial, sans-serif;
   }
-
   .modal-header h3 {
     margin-top: 0;
     color: #42b983;
   }
-
   .modal-body {
     margin: 20px 0;
   }
-
   .modal-default-button {
     float: right;
   }
-
   .modal-enter {
     opacity: 0;
   }
-
   .modal-leave-active {
     opacity: 0;
   }
-
   .modal-enter .modal-container,
   .modal-leave-active .modal-container {
     -webkit-transform: scale(1.1);
     transform: scale(1.1);
   }
-
 </style>
