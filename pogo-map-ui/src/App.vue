@@ -32,6 +32,12 @@
             <raid-count-down :raid="marker.raid"/>
           </v-tooltip>
         </v-marker>
+
+        <v-marker
+          v-if="location.position"
+          :lat-lng="location.position.latLng"
+          :icon="location.position.icon"
+          :options="location.position.options" />
       </v-map>
 
       <manage-raid :raid="selectedRaid" @raidModified="raidModified($event)" @closeModal="closeModal()"/>
@@ -40,6 +46,10 @@
       <div v-if="showAddImage" class="action-add" @click="showAddRaid()">
         <img src="static/assets/add.png"/>
       </div>
+
+      <!--<div class="location-action" @click="toggleLocation()" :class="{'infinite-rotate': location.loading}">-->
+        <!--<i class="fas fa-location-arrow"></i>-->
+      <!--</div>-->
 
       <!--<div class="refresh-action" :class="{'infinite-rotate': loading}" @click="loadData()">-->
         <!--<i class="fas fa-sync-alt"></i>-->
@@ -78,6 +88,10 @@
         toast: {
           visible: false,
           text: ''
+        },
+        location: {
+          position: null,
+          loading: false
         }
       }
     },
@@ -188,6 +202,38 @@
       showToast(text) {
         this.toast.text = text;
         this.toast.visible = true;
+      },
+
+      toggleLocation() {
+        console.log('enable location');
+
+        this.location.loading = true;
+
+        navigator.geolocation.getCurrentPosition(position => {
+          console.log('current position', position);
+
+          this.location.position = {
+            latLng: {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            },
+            icon: new L.DivIcon({
+              // iconUrl: 'static/assets/gym.png',
+              // iconSize: [50, 50], // size of the icon
+              // iconAnchor: [25, 50], // point of the icon which will correspond to marker's location
+              // popupAnchor: [0, -50], // point from which the popup should open relative to the iconAnchor
+              html: `<span class="location-badge"><i class="fas fa-circle"></i></span>`
+            })
+          };
+
+          this.map.center = [position.coords.latitude, position.coords.longitude];
+
+          this.location.loading = false;
+
+        }, error => {
+          console.log('unable to get location', error);
+          this.location.loading = false;
+        });
       }
     }
   }
@@ -260,6 +306,23 @@
     }
   }
 
+  .location-action {
+    z-index: 9999;
+    position: absolute;
+    right: 12px;
+    top: 67px;
+
+    i {
+      background: rgba(89, 91, 230, 0.20);
+      border-radius: 30px;
+      padding: 7px;
+      font-size: 27px;
+      cursor: pointer;
+      color: #595be6;
+      font-weight: bold;
+    }
+  }
+
   .refresh-action {
     z-index: 9999;
     position: absolute;
@@ -287,6 +350,19 @@
     }
     100% {
       transform: rotate(359deg);
+    }
+  }
+
+  .location-badge {
+    color: #50a0f9;
+    font-size: 9pt;
+    background: rgba(49, 59, 243, 0.12);
+    border-radius: 50px;
+    padding: 7px;
+    text-align: center;
+
+    i {
+      text-shadow: -2px 2px white, -2px -1px white, 2px 2px white, 2px -2px white;
     }
   }
 
