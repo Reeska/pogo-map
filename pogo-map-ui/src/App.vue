@@ -299,6 +299,7 @@
     z-index: 1000;
     position: absolute;
     right: 12px;
+    top: 0;
 
     .action-btn {
       margin: 10px 0;
