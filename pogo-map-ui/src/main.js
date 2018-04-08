@@ -10,6 +10,8 @@ import Toasted from 'vue-toasted'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
 import colors from 'vuetify/es5/util/colors'
+import 'babel-polyfill';
+import 'whatwg-fetch';
 
 Vue.config.productionTip = false
 
