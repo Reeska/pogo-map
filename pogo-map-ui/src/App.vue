@@ -296,7 +296,7 @@
   }
 
   .actions-panel {
-    z-index: 9999;
+    z-index: 1000;
     position: absolute;
     right: 12px;
 
