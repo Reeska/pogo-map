@@ -164,9 +164,9 @@
       },
 
       async addCoordinates(raids) {
-        raids.forEach(async raid => {
+        for (let raid of raids) {
           raid.gym = await findGymById(raid.gymId);
-        });
+        }
         return raids;
       },
 
@@ -187,7 +187,7 @@
 
         this.markers = [];
 
-        activeRaids.forEach(async raid => {
+        for (let raid of activeRaids) {
           this.markers.push({
             id: raid.id,
             raid,
@@ -197,7 +197,7 @@
             },
             icon: this.buildIcon(raid.gym)
           });
-        });
+        }
 
         this.loading = false;
       },
