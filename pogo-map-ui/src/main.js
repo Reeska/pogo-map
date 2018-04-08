@@ -33,7 +33,7 @@ Vue.component('v-tooltip', Tooltip);
 
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
+  el: '#root',
   template: '<App/>',
   components: {App}
 })

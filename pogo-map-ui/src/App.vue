@@ -16,15 +16,22 @@
           :options="marker.options"
           :key="marker.id">
           <v-popup v-if="marker.raid">
-            <div style="width: 150px; text-align: center">
-              <div class="gymName">{{ marker.raid.gym.name }}</div>
+            <div class="raid-popup">
+              <h3>{{ marker.raid.gym.name }}</h3>
               5 &#9733;<br/>
               Pop : {{ toPrintedDate(marker.raid.hatchTime) }}<br/>
               Fin : {{ getEndDate(marker.raid.hatchTime) }}<br/>
               On lance à : {{ marker.raid.raidStartTime ? toPrintedDate(marker.raid.raidStartTime) : '-' }}<br/>
+
               <a href='#' @click="showAddRaid(marker.raid)">Modifier</a>
-              <div style="margin-top: 10px"><strong>{{getNumberOfPlayers(marker.raid)}} participants</strong></div>
-              <div><a href="#" @click="showAddPlayer(marker.raid)">Ajouter un participant</a></div>
+
+              <div class="players">
+                <strong>{{getNumberOfPlayers(marker.raid)}} participant(s)</strong>
+              </div>
+
+              <div>
+                <a href="#" @click="showAddPlayer(marker.raid)">Ajouter un participant</a>
+              </div>
             </div>
           </v-popup>
 
@@ -56,7 +63,6 @@
           <i class="fas fa-sync-alt"></i>
         </div>
       </div>
-
 
       <v-snackbar
         :timeout="2000"
@@ -243,9 +249,24 @@
 </script>
 
 <style lang="scss">
-  /*@import '../node_modules/bootstrap/scss/bootstrap.scss';*/
-
   $light-white: #FCFEFA;
+
+  /* Common */
+  html {
+    background: #f2f2f2;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  h2 {
+    margin-top: 0;
+  }
+
+  p {
+    margin-top: 0;
+  }
 
   #app {
     height: 100%;
@@ -255,6 +276,21 @@
     left: 0;
     z-index: 0;
   }
+
+  .rotating {
+    animation: btn-loading 1s infinite linear;
+  }
+
+  @keyframes btn-loading {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(359deg);
+    }
+  }
+
+  /* leaflet */
 
   .leaflet-tooltip {
     background-color: transparent;
@@ -266,6 +302,12 @@
   .leaflet-div-icon {
     background: none;
     border: 0 none;
+  }
+
+  // Hack for Safari
+  .application--wrap > .vue2leaflet-map {
+    width: 100%;
+    height: 100vh;
   }
 
   .gym-marker {
@@ -290,10 +332,20 @@
     }
   }
 
-  .gymName {
-    font-weight: bold;
-    font-size: 15px;
+  .raid-popup {
+    width: 150px;
+    text-align: center;
+
+    h3 {
+      font-size: 15px;
+    }
+
+    .players {
+      margin-top: 10px;
+    }
   }
+
+  /* UX */
 
   .actions-panel {
     z-index: 1000;
@@ -337,36 +389,6 @@
     }
   }
 
-  .refresh-action {
-    z-index: 9999;
-    position: absolute;
-    right: 12px;
-    top: 67px;
-
-    i {
-      border: 2px solid #4178ce;
-      background: #54a0e6;
-      border-radius: 30px;
-      padding: 7px;
-      font-size: 27px;
-      cursor: pointer;
-      color: white;
-    }
-  }
-
-  .rotating {
-    animation: btn-loading 1s infinite linear;
-  }
-
-  @keyframes btn-loading {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(359deg);
-    }
-  }
-
   .location-badge {
     color: #50a0f9;
     font-size: 9pt;
@@ -378,73 +400,6 @@
     i {
       text-shadow: -2px 2px white, -2px -1px white, 2px 2px white, 2px -2px white;
     }
-  }
-
-  .smart-popin {
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    overflow: auto; /* scrollbar will appear if the viewport is too tight to display all the popin content */
-    opacity: 0;
-    visibility: hidden;
-
-    /* design */
-
-    background-color: rgba(0, 0, 0, 0.5);
-    -webkit-transition: all 0.4s ease;
-    -moz-transition: all 0.4s ease;
-    -ms-transition: all 0.4s ease;
-    -o-transition: all 0.4s ease;
-    transition: all 0.4s ease;
-  }
-
-  .smart-popin:target {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .smart-popin .sp-table {
-    display: table;
-    height: 100%;
-    width: 100%;
-  }
-
-  .smart-popin .sp-cell {
-    display: table-cell;
-    vertical-align: middle;
-    padding: 10px; /* this space is important to let the box-shadow exceed around the popin - so it has to be at least equal to the shadow radius */
-  }
-
-  .smart-popin .sp-body {
-    position: relative; /* to allow absolute positionning inside */
-    z-index: 5454358; /* to ensure the popin body will be over the .sp-back layer */
-    width: auto; /* by default the width of the wider element inside */
-    min-width: 300px; /* standard width for xs smartphones (320px) minus 2*10px (.sp-cell margins) */
-    margin: 0 auto;
-
-    /* design */
-
-    background-color: #ffffff;
-    padding: 2em;
-    -webkit-box-shadow: 0 3px 5px 1px rgba(0, 0, 0, 0.25);
-    box-shadow: 0 3px 5px 1px rgba(0, 0, 0, 0.25);
-    width: 66.66%; /* 66.66 looks good :-) */
-  ;
-  }
-
-  .smart-popin .sp-body * {
-    max-width: 100%; /* this is a security to prevents wide elements such as img to stretch the popin beyond the viewport width */
-  }
-
-  .smart-popin .sp-back { /* only used to get clicks out of the popin body */
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    display: block;
   }
 
   .sp-close {
@@ -464,47 +419,10 @@
     cursor: pointer;
   }
 
-  /* misc */
-
-  .website-content {
-    max-width: 980px;
-    padding: 20px;
-    margin: 0 auto;
-  }
-
-  .open-popin {
-    display: inline-block;
-    text-align: center;
-    color: #ffffff;
-    text-decoration: none;
-    background-color: crimson;
-    padding: 0.5em 1.5em;
-    border-radius: 20px;
-    margin-bottom: 0.8em;
-  }
-
   /* Vuetify */
 
   .snack {
     z-index: 10001;
-  }
-
-  html {
-    background: #f2f2f2;
-  }
-
-  img {
-    max-width: 100%;
-    width: 100% \9
-  ; /* this is a hack for IE9 since min-width won't work */
-  }
-
-  h2 {
-    margin-top: 0;
-  }
-
-  p {
-    margin-top: 0;
   }
 
 </style>
