@@ -43,17 +43,20 @@
       <manage-raid :raid="selectedRaid" @raidModified="raidModified($event)" @closeModal="closeModal()"/>
       <add-player :raid="selectedRaid" @playerAdded="raidModified($event)" @closeModal="closeModal()"/>
 
-      <div v-if="showAddImage" class="action-add" @click="showAddRaid()">
-        <img src="static/assets/add.png"/>
+      <div class="actions-panel">
+        <div class="action-btn action-add" @click="showAddRaid()">
+          <i class="fas fa-plus"></i>
+        </div>
+
+        <div class="action-btn action-location" @click="toggleLocation()" :class="{'rotating': location.loading}">
+          <i class="fas fa-location-arrow"></i>
+        </div>
+
+        <div class="action-btn action-reload" :class="{'rotating': loading}" @click="loadData()">
+          <i class="fas fa-sync-alt"></i>
+        </div>
       </div>
 
-      <!--<div class="location-action" @click="toggleLocation()" :class="{'infinite-rotate': location.loading}">-->
-        <!--<i class="fas fa-location-arrow"></i>-->
-      <!--</div>-->
-
-      <!--<div class="refresh-action" :class="{'infinite-rotate': loading}" @click="loadData()">-->
-        <!--<i class="fas fa-sync-alt"></i>-->
-      <!--</div>-->
 
       <v-snackbar
         :timeout="2000"
@@ -292,34 +295,44 @@
     font-size: 15px;
   }
 
-  .action-add {
-    height: 50px;
-    width: 50px;
-    z-index: 10000;
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    cursor: pointer;
-
-    img {
-      height: 50px;
-    }
-  }
-
-  .location-action {
+  .actions-panel {
     z-index: 9999;
     position: absolute;
     right: 12px;
-    top: 67px;
 
-    i {
-      background: rgba(89, 91, 230, 0.20);
-      border-radius: 30px;
-      padding: 7px;
-      font-size: 27px;
-      cursor: pointer;
-      color: #595be6;
-      font-weight: bold;
+    .action-btn {
+      margin: 10px 0;
+
+      i {
+        border-radius: 23px;
+        padding: 7px;
+        cursor: pointer;
+        color: white;
+        font-weight: 700;
+        width: 41px;
+        height: 41px;
+        text-align: center;
+
+        font-size: 16pt;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      &.action-add {
+        i {
+          font-size: 27px;
+          background: rgba(3, 169, 244, 0.64);
+        }
+      }
+
+      &.action-reload i {
+        background: rgba(44, 38, 117, 0.64);
+      }
+
+      &.action-location i {
+        background: rgba(42, 94, 165, 0.64);
+      }
     }
   }
 
@@ -340,7 +353,7 @@
     }
   }
 
-  .infinite-rotate {
+  .rotating {
     animation: btn-loading 1s infinite linear;
   }
 
